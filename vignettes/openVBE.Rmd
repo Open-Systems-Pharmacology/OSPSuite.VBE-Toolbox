@@ -1,0 +1,53 @@
+---
+title: "Get Started"
+resource_files:
+  - figures
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Get Started}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+# When using devtools::check(), the vignette directory gets cleaned up at the end of the run
+# Thus, permanent figures are copied from inst/examples to figures/ at the beginning of the knitting
+dir.create("figures", showWarnings = FALSE)
+permanent_figure_names <- c("overview.png")
+permanent_figure_paths <- system.file("examples", permanent_figure_names, package = "openVBE")
+file.copy(from = permanent_figure_paths, to = "figures", overwrite = TRUE)
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.align = "center",
+  fig.width = 8
+)
+```
+
+```{r setup}
+library(openVBE)
+```
+
+
+Ensuring comparable rate and extent at which an active ingredient reaches the site of action for the generic (test) formulation and the reference listed drug or reference standard is necessary to establish bioequivalence (BE) between these products.
+To overcome challenges related to study design , population selection, subject recruitment and data sparsity leading, ultimately, to decreased human testing, in silico approaches that involve virtual bioequivalence (VBE) assessment are increasingly considered by industry and regulatory agencies.
+
+This article introduces an R package within the Open Systems Pharmacology framework to streamline VBE workflows.
+
+**Figure**: Overview of VBE workflows
+
+```{r, echo=FALSE}
+knitr::include_graphics("figures/overview.png")
+```
+
+The package integrates in vitro and in vivo data to train pharmacokinetic models, accounting for inter-individual variability, and establishing in vitro to in vivo extrapolations (IVIVE).
+A nonparametric approach is adopted to address  parameter non-identifiability.
+The trained model is subsequently applied to determine the appropriate study size with statistical power needed for demonstrating BE virtually.
+
+This tutorial guides users through standardized steps to assess the VBE of two formulations, illustrated with two case studies developed in dedicated articles in this site. 
+
+- The [first case study](./testosterone-dermal.html) evaluates the VBE of petrolatum and ethylene glycol dermal formulations of testosterone by integrating in vitro skin permeation tests, vehicle/skin partitioning data, testosterone solubility data, and in vivo absorption data in a mechanistic in vitro/in vivo dermal absorption model.
+- The [second case study](./buproprion-oral.html) assesses the VBE of two oral formulations of bupropion by integrating in vitro dissolution data in a physiologically based pharmacokinetic model.
+
+These case studies thus highlight the essential considerations for model development, training, and extrapolation towards their application for a VBE assessment.

@@ -1,0 +1,206 @@
+---
+title: "Testosterone Dermal"
+resource_files:
+  - figures
+output: rmarkdown::html_vignette
+bibliography: vbe-paper-references-bibtex.bib
+vignette: >
+  %\VignetteIndexEntry{Testosterone Dermal}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+<style> body {text-align: justify;}</style>
+  
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  eval = TRUE,
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Testosterone dermal absorption model case study
+
+The absorption of active ingredients applied to the skin is heavily influenced by the choice of vehicle [@Bronaugh1986;@Hilton1994;@Lehman2011;@Matta2020]. Differences in skin permeation arise due to variation in how the active ingredient partitions from a formulation into the skin, and also due to inactive ingredients in the formulation that can alter diffusivity across the skin strata [@OECD2022].  Mechanistic models of dermal absorption of small molecules from dermal formulations have been developed by the Kasting group [@Dancik2013;@Yu2021] and have been translated into open source implementations in the OSP Suite quantitative systems pharmacology modeling platform, MoBi® [@MoBiSkin2019].   Subsequently, the MoBi® implementation has been used to develop a dermal model Bayesian IVIVE workflow [@Hamadeh2022] and to develop a model of UV filter absorption and systemic exposure following sunscreen applications [@Hamadeh2023].
+
+The MoBi® implementation mentioned above describes the permeation of compounds from a vehicle deposited on the skin surface into the stratum corneum, the viable epidermis, and the dermis.  Clearance from the dermis can be modeled as being into a receptor fluid medium when simulating in vitro skin permeation tests, or into systemic circulation when simulating in vivo dermal absorption.  To simulate the disposition of dermally applied compounds following their absorption into systemic circulation, the MoBi® model can also be appended to PK-Sim® PBPK whole-body PBPK models or, as in the case of Hamadeh et al. [@Hamadeh2023], it can be appended to one- or two-compartment models.  Further details on model structure, assumptions and development are provided in Supplementary Materials 1.
+
+This case study uses an integrated model consisting of the MoBi® dermal absorption model appended to a single systemic compartment to assess VBE between two topical testosterone formulations. The one-compartment systemic model is parameterized by the apparent clearance and volume of distribution of testosterone reported in Bi et al. [@Bi2018]. The two testosterone formulations are those studied in Bronaugh & Franz [@Bronaugh1986]. That work reported the skin absorption flux rates for testosterone when applied to human skin under both in vitro and in vivo settings in a petrolatum vehicle and in an ethylene glycol gel vehicle.  The applied vehicle mass per unit area was 25 mg/cm<sup>2</sup> in all four cases, and the testosterone dose within the vehicles was 2 &mu;g/cm<sup>2</sup> for all applications except the ethylene glycol application to in vivo skin, which was applied at a dose of 3 &mu;g/cm<sup>2</sup>. Here, the proposed workflow is applied towards VBE assessments of the petrolatum (assumed to be the R product) formulation and the ethylene glycol (assumed to be the T product) formulation and will be assessed at a testosterone strength of 2 &mu;g/cm<sup>2</sup>, applied in a 25 mg/cm<sup>2</sup> vehicle.
+
+## Dermal application case study data sets
+
+As Bronaugh & Franz [@Bronaugh1986] did not provide testosterone plasma concentration data for subjects treated with the petrolatum formulation, for the purposes of this case study, we used their reported testosterone dermal absorption rate along with the testosterone systemic clearance and volume of distribution values from Bi et al. [@Bi2018], to generate simulated plasma concentration profiles as described in Supplementary Materials 1. These individualized profiles are used as data set D1 for this illustrative example, and each profile is associated with a virtual individual characterized by body weight.  The collective body weights of all virtual individuals in this example constitute data set D2.  The distribution of body weights is derived from Bi et al. [@Bi2018]. 
+
+### openVBE code
+
+The following code gets the Data sets D1 and D2 from `pkDataFilePath = "pk_data_reference.csv"` and `studyPopulationDataFilePath = "population_data.csv"` respectively.
+
+```{r}
+library(openVBE)
+
+dateTime <- paste0(format(Sys.Date(), "%Y%m%d"), "_", format(Sys.time(), "%H%M%S"))
+exampleName <- "testosterone-dermal"
+subfolder <- system.file("examples", exampleName, package="openVBE")
+
+# D1
+pkDataFilePath <- file.path(subfolder, "pk_data_reference.csv")
+# D2
+studyPopulationDataFilePath <- file.path(subfolder,"population_data.csv")
+```
+
+
+## Step W1 - PK model development 
+
+The MoBi® skin absorption model [@MoBiSkin2019] was optimized, as described in Supplementary Materials 1, to the in vitro testosterone absorption measurements reported for the petrolatum and ethylene glycol vehicles in Bronaugh & Franz [@Bronaugh1986] and then externally validated against the in vivo testosterone absorption rates following application in the petrolatum vehicle.  Two vehicle -specific parameters were optimized based on the in vitro data: the vehicle/stratum corneum partition coefficient, $K_{v/sc}$, and the vehicle-specific effect on testosterone permeability across stratum corneum lipid bilayers, $\Delta_{trans}$.
+
+Once validated, the resulting testosterone dermal absorption model was appended to a single systemic compartment to represent in vivo systemic concentrations following absorption from skin. The nominal values of testosterone clearance and volume of distribution for the systemic compartment were adopted from Bi et al. [@Bi2018].  Two such in vivo testosterone dermal absorption models were constructed, one for each vehicle.  The testosterone systemic disposition in these two models was assumed to be the same, and the only differences between them lay in their respective values of the optimized vehicle-specific parameters, $K_{v/sc}$ and $\Delta_{trans}$.
+
+### openVBE code
+
+```{r}
+referenceSimulationFilePath <- file.path(subfolder,"reference_formulation.pkml")
+testSimulationFilePath <- file.path(subfolder,"test_formulation.pkml")
+```
+
+## Step W2 - Learning posterior distributions of IIV and IVIVE parameters
+
+Based on sensitivity analyses conducted in Hamadeh et al. [Hamadeh2022] on the MoBi® skin absorption model, permeability across stratum corneum lipid bilayers ($\log k_{trans}$) was identified as an influential parameter in the dermal absorption of testosterone.  An additive individual-specific perturbation $\theta_1$ to $\log k_{trans}$, ranging within $[-1,1]$, was selected for inference from the data set **D1**.
+Also selected for inference from this data set is a scaling parameter, $\theta_1$ and $\theta_2$ and the demographic description of the virtual population, which, in this example, consists of the individual weight.  The posterior probability of each support point is given by the point color. 
+
+### openVBE code
+
+```{r}
+outputPath <- "DERMAL_APPLICATION_AREA|in_vivo_sink|permeant|whole_body_concentration"
+
+uncertainty_logktrans <- vbeParameter(
+  pathInReferenceSimulation = "permeant|uncertainty_logktrans",
+  pathInTestSimulation = "permeant|uncertainty_logktrans",
+  displayName = "uncertainty_logktrans",
+  dimension = ospDimensions$Dimensionless,
+  unit = ospUnits$Dimensionless$Unitless,
+  lowerBound = -1,
+  upperBound = 1,
+  logIncrement = FALSE
+)
+
+scaling_total_clearance <- vbeParameter(
+  pathInReferenceSimulation = "in_vivo_sink_clearance|scaling_total_clearance",
+  pathInTestSimulation = "in_vivo_sink_clearance|scaling_total_clearance",
+  displayName = "scaling_total_clearance",
+  dimension = ospDimensions$Dimensionless,
+  unit = ospUnits$Dimensionless$Unitless,
+  lowerBound = 0.5,
+  upperBound = 1.5,
+  logIncrement = FALSE
+)
+
+inferenceParameters <- list(uncertainty_logktrans, scaling_total_clearance)
+
+cofactorPaths <- list(weight = "DERMAL_APPLICATION_AREA|in_vivo_sink|body_weight")
+```
+
+Learns the posterior distributions of `uncertainty_logktrans`, `scaling_total_clearance`, and `weight` IIV parameters and cofactors.
+
+```{r}
+inferredDistribution <- runDistributionInference(
+  method = "NPOD",
+  referenceSimulationFilePath = referenceSimulationFilePath,
+  outputPath = outputPath,
+  pkDataFilePath = pkDataFilePath,
+  studyPopulationDataFilePath = studyPopulationDataFilePath,
+  cofactorPaths = cofactorPaths,
+  inferenceParameters = inferenceParameters,
+  initialGridSize = 40,
+  numberOfIterations = 10,
+  useLogNormalLikelihood = TRUE,
+  saveResultsPath = paste0(exampleName,"-npod-results-",dateTime,".rds"),
+  cacheFolder = "cacheFolder"
+)
+
+```
+
+## Step W3 - Virtual population simulation
+
+The support points shown in Figure 4 (A-C) were used to construct a Gaussian mixture model via the `mclust` R algorithm.  Panels D-F in Figure 4, show the same support points in panels A-C but with the Gaussian mixture model clustering superimposed. Panels D-F respectively show the clustering for scenarios in which two, four, and six clusters are fitted to the support points.  The color of the plotted points in panels D-F indicate the cluster to which each point is assigned.  
+
+This figure shows that increasing the number of clusters more tightly centers high probability regions of the Gaussian mixture model around the high probability support points that were found by the NPOD algorithm, whereas reducing the number of clusters increases the probability of regions in the parameter space in between support points. 
+
+Since this Gaussian mixture model will be used to generate a virtual population through sampling, the number of clusters selected in this step can impact the characteristics of the virtual individuals, and hence, the final VBE assessment. The user may select the most appropriate number of clusters using visual inspection of the clusters' fits to the support points or using more quantitative approaches such as the Akaike Information Criterion or the Bayesian Information Criterion [@Burnham2002].  In this case, the four cluster Gaussian mixture model was selected.  
+
+An internal validation of the four-cluster model against data set D1 was next performed. A virtual population, wherein each individual is characterized by body weight, was generated by sampling within a range of 50–100 kg of body weight . For each virtual individual, $\theta_1$ and $\theta_2$ were sampled from the Gaussian mixture model conditional on their body weight.  Using the testosterone dermal absorption model, testosterone plasma concentration versus time profiles were then simulated for the virtual population following administration of the reference petrolatum formulation and compared to the corresponding measurements from data set D1. The simulations assumed a testosterone dose of 2 &mu;g/cm<sup>2</sup> applied within a 25 mg/cm<sup>2</sup> vehicle.  Figure 4G shows a comparison between the 90% prediction interval of the virtual population's simulated testosterone plasma concentration versus time profiles and the observed data set D1, showing that the model predictions encompass the D1 dataset. 
+
+Figure 4H overlays the simulated testosterone plasma concentration ranges for the R petrolatum formulation (in red) and T ethylene glycol formulation (in blue) when both are applied at a dosage of 2 &mu;g/cm<sup>2</sup>.  This panel highlights that the virtual population's predicted testosterone exposure is higher with the petrolatum formulation than with the ethylene glycol formulation, as reflected in both the AUC and Cmax metrics.
+
+A post-hoc external validation of the four-cluster model was also performed by comparing the simulated testosterone plasma concentrations versus time profiles of the virtual population following dermal application of a 3 &mu;g/cm<sup>2</sup> dose via the T product against corresponding measurements.  This comparison, in Figure 4I, shows that T product model was largely able to predict the range of the measured testosterone plasma concentration profile. 
+
+### openVBE code
+
+Parameters to describe demographics (body weight) of study population to create a virtual population:
+
+```{r}
+# Given values Median and CV body weight
+popBWMedian <- 85 
+popBWCV <- 0.148 
+
+# Compute lognormal parameters
+mu <- log(popBWMedian)
+sigma <- sqrt(log(1 + popBWCV^2))
+
+# Compute confidence intervals
+CI_95 <- stats::qlnorm(c(0.025, 0.975), meanlog = mu, sdlog = sigma)
+```
+
+```{r}
+demographyRanges <- list(
+  weight = list(range = c(CI_95[1], CI_95[2]), units = "kg")
+)
+
+vp <- VirtualPopulation$new(inferredDistribution = inferredDistribution,
+                            demographyRanges = demographyRanges,
+                            numberOfVirtualIndividuals = 100,
+                            proportionOfFemales = 50,
+                            numberOfClusters = 4) 
+
+vp$addMultiplicativeIOV(parameterPath = "in_vivo_sink_clearance|scaling_total_clearance",CV = 0.1)
+vp$addMultiplicativeIOV(parameterPath = "permeant|K_v_m",CV = 0.1)
+
+refAndTestSimulationsInVirtualPopulation <- vp$simulateVirtualPopulation(referenceSimulationFilePath = referenceSimulationFilePath,
+                                                                         testSimulationFilePath = testSimulationFilePath,
+                                                                         numberOfReplicates = 2,
+                                                                         outputPath = outputPath,
+                                                                         startTime = 0,
+                                                                         endTime = 6000,
+                                                                         resolutionPtsMin = 1/15)
+
+```
+
+```{r}
+source(file.path(subfolder,"plotting_script.R"), encoding = 'UTF-8')
+```
+
+## Step W4 - Clinical trial simulation and VBE evaluation
+
+Figure 5 shows the results of the virtual bioequivalence assessment that was performed using the testosterone plasma concentration versus time profiles generated in the preceding step for the virtual population for both the petrolatum and ethylene glycol formulations when applied at the 2 &mu;g/cm<sup>2</sup> dosage level.  At each trial population size between 5 and 50 subjects, 1000 clinical trials were conducted. In each trial, the GMR of the PK parameter and its 90% CI are evaluated. The red bands in Figure 5 panels A-D show the distribution of the point estimate of the GMR of the PK parameter (AUC or Cmax) over the 1000 trials at each trial size.  Similarly, the lower and upper blue bands respectively show the distribution of the lower and upper 90% CI of the GMR. Panel E shows the probability of declaring BE at each trial size, which is the fraction of the 1000 trials at each trial size that resulted in a positive BE outcome (i.e., R and T were found bioequivalent).
+
+As expected from a visual inspection of Figure 4H, the two formulations were not bioequivalent in terms of AUC or Cmax.  In Figure 5 (panels A-D), confidence intervals of the AUC and Cmax GMR ratios do not fall within the 0.80 – 1.25 BE range for either the crossover or parallel study designs.  The probability of bioequivalence between the ethylene glycol and petrolatum testosterone formulations for trial sizes between 5 and 50 are also shown in Figure 5E.  Under both the crossover and parallel trial designs the probability of bioequivalence BE was very small (<0.05) in terms of both the AUC and Cmax.  
+
+### openVBE code
+
+```{r}
+ctsResults <- runClinicalTrialSimulation(virtualPopulationSimulationResults = refAndTestSimulationsInVirtualPopulation,
+                                         subj_min = 10,
+                                         subj_max = 50,
+                                         subj_step = 4,
+                                         n_trials = 1000,
+                                         aucICV = 0,
+                                         cmaxICV = 0)
+
+bandsPlot <- plotVBEBands(ctsResults)
+show(bandsPlot)
+
+probabilityPlot <- plotVBEProbability(ctsResults)
+show(probabilityPlot)
+
+```
+
