@@ -32,7 +32,7 @@ Imports:
     dplyr,
     purrr,
     tmvtnorm,
-    ggplot2,
+    ggplot2 (< 4.0.0),
     cachem,
     DiceDesign,
     memoise,
