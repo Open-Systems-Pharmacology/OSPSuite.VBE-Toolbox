@@ -1,9 +1,9 @@
 
-# openVBE
+# ospsuite.openVBE
 
 <!-- badges: start -->
 
-| [![Main-Workflow](https://github.com/abdullahhamadeh/openVBE/actions/workflows/main-workflow.yaml/badge.svg)](https://github.com/abdullahhamadeh/openVBE/actions/workflows/main-workflow.yaml) | [![](https://img.shields.io/badge/Citation-CPT:PSP-blue.svg)](https://pubmed.ncbi.nlm.nih.gov/) |
+| [![Main-Workflow](https://github.com/Open-Systems-Pharmacology/OSPSuite.VBE-Toolbox/actions/workflows/main-workflow.yaml/badge.svg)](https://github.com/Open-Systems-Pharmacology/OSPSuite.VBE-Toolbox/actions/workflows/main-workflow.yaml) | [![](https://img.shields.io/badge/Citation-CPT:PSP-blue.svg)](https://pubmed.ncbi.nlm.nih.gov/) |
 |---|---|
 
 
@@ -20,10 +20,10 @@ You can install the development version of `openVBE` like so:
 # Packages handy for installing a Github package
 # install.packages(c('remotes', 'devtools', 'pak'))
 
-pak::pak("abdullahhamadeh/openVBE")
+pak::pak("Open-Systems-Pharmacology/OSPSuite.VBE-Toolbox")
 ```
 
-If you wish to use the package bundle instead, Linux and Windows bundles are available as zipped artifacts of the [Main-Workflow](https://github.com/abdullahhamadeh/openVBE/actions/workflows/main-workflow.yaml) github action.
+If you wish to use the package bundle instead, Linux and Windows bundles are available as zipped artifacts of the [Main-Workflow](https://github.com/Open-Systems-Pharmacology/OSPSuite.VBE-Toolbox/actions/workflows/main-workflow.yaml) github action.
 
 ## Citation
 
@@ -44,4 +44,4 @@ Two articles develop case studies of VBE workflows:
 
 ## Contact
 
-To report bugs 🐞 or request potential features 💡, please use the [issue](https://github.com/abdullahhamadeh/openVBE/issues) tracker.
+To report bugs 🐞 or request potential features 💡, please use the [issue](https://github.com/Open-Systems-Pharmacology/OSPSuite.VBE-Toolbox/issues) tracker.

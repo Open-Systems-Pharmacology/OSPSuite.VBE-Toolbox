@@ -34,11 +34,11 @@ In this example, data set D1 consists of bupropion plasma concentration versus t
 The following code gets the Data sets D1 and D2 from `pkDataFilePath = "pk_data_reference.csv"` and `studyPopulationDataFilePath = "population_data.csv"` respectively.
   
 ```{r}
-  library(openVBE)
+  library(ospsuite.openVBE)
   
   dateTime <- paste0(format(Sys.Date(), "%Y%m%d"), "_", format(Sys.time(), "%H%M%S"))
   exampleName <- "bupropion-oral"
-  subfolder <- system.file("examples", exampleName, package="openVBE")
+  subfolder <- system.file("examples", exampleName, package="ospsuite.openVBE")
   
   # D1
   pkDataFilePath <- file.path(subfolder, "pk_data_reference.csv")
@@ -88,10 +88,10 @@ outputPath <- "Organism|PeripheralVenousBlood|Bupropion human 1st order|Plasma (
 
 Identified individual-specific parameters that are uncertain and influential with respect to plasma concentration profiles.
 
-Note that `library(openVPE)` also loads `ospsuite` package which allows to directly access the namespace of the latter package.
+Note that `library(ospsuite.openVBE)` also loads `ospsuite` package which allows to directly access the namespace of the latter package.
 
 > `ospDimensions` and `ospUnits` list all the dimensions and units available in the OSP Suite. 
-> These variables are exported by the `ospsuite` package. Loading `openVBE` then allows to directly access them.
+> These variables are exported by the `ospsuite` package. Loading `ospsuite.openVBE` then allows to directly access them.
 
 
 ```{r}

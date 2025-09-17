@@ -37,11 +37,11 @@ As Bronaugh & Franz [@Bronaugh1986] did not provide testosterone plasma concentr
 The following code gets the Data sets D1 and D2 from `pkDataFilePath = "pk_data_reference.csv"` and `studyPopulationDataFilePath = "population_data.csv"` respectively.
 
 ```{r}
-library(openVBE)
+library(ospsuite.openVBE)
 
 dateTime <- paste0(format(Sys.Date(), "%Y%m%d"), "_", format(Sys.time(), "%H%M%S"))
 exampleName <- "testosterone-dermal"
-subfolder <- system.file("examples", exampleName, package="openVBE")
+subfolder <- system.file("examples", exampleName, package="ospsuite.openVBE")
 
 # D1
 pkDataFilePath <- file.path(subfolder, "pk_data_reference.csv")
