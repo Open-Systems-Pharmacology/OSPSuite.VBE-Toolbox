@@ -12,14 +12,12 @@ jobs:
     if: ${{ !cancelled() }}
     uses: Open-Systems-Pharmacology/Workflows/.github/workflows/R-CMD-check-build.yaml@main
     secrets: inherit
-    with:
-      extra-env: |
-        GITHUB_PAT=${{ secrets.GITHUB_TOKEN }}
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
 
   pkgdown:
     if: ${{ !cancelled() }}
     uses: Open-Systems-Pharmacology/Workflows/.github/workflows/pkgdown.yaml@main
     secrets: inherit
-    with:
-      extra-env: |
-        GITHUB_PAT=${{ secrets.GITHUB_TOKEN }}
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
