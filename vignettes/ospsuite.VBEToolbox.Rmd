@@ -14,7 +14,7 @@ vignette: >
 # Thus, permanent figures are copied from inst/examples to figures/ at the beginning of the knitting
 dir.create("figures", showWarnings = FALSE)
 permanent_figure_names <- c("overview.png")
-permanent_figure_paths <- system.file("examples", permanent_figure_names, package = "ospsuite.openVBE")
+permanent_figure_paths <- system.file("examples", permanent_figure_names, package = "ospsuite.VBEToolbox")
 file.copy(from = permanent_figure_paths, to = "figures", overwrite = TRUE)
 
 knitr::opts_chunk$set(
@@ -26,7 +26,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup}
-library(ospsuite.openVBE)
+library(ospsuite.VBEToolbox)
 ```
 
 

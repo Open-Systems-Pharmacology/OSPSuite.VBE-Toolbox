@@ -1,4 +1,4 @@
-Package: ospsuite.openVBE
+Package: ospsuite.VBEToolbox
 Type: Package
 Title: A virtual bioequivalence toolbox for Open Systems Pharmacology Suite models
 Version: 0.1.0

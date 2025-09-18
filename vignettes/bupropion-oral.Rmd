@@ -29,16 +29,16 @@ Bupropion is an antidepressant of the aminoketone class and indicated for the tr
   
 In this example, data set D1 consists of bupropion plasma concentration versus time profiles reported in Connarn et al. [@Connarn2017] for 30 adults who received a 150 mg dose via the SR tablet formulation (R).  Data set D2 consists of the weights and heights of  each individual in data set D1. The data were generated within the scope of FDA-funded contract HHSF223201310164C and fully reported by Connarn et al. [@Connarn2017]. 
   
-### openVBE code
+### ospsuite.VBEToolbox code
   
 The following code gets the Data sets D1 and D2 from `pkDataFilePath = "pk_data_reference.csv"` and `studyPopulationDataFilePath = "population_data.csv"` respectively.
   
 ```{r}
-  library(ospsuite.openVBE)
+  library(ospsuite.VBEToolbox)
   
   dateTime <- paste0(format(Sys.Date(), "%Y%m%d"), "_", format(Sys.time(), "%H%M%S"))
   exampleName <- "bupropion-oral"
-  subfolder <- system.file("examples", exampleName, package="ospsuite.openVBE")
+  subfolder <- system.file("examples", exampleName, package="ospsuite.VBEToolbox")
   
   # D1
   pkDataFilePath <- file.path(subfolder, "pk_data_reference.csv")
@@ -66,7 +66,7 @@ Parameters $\theta_1$ and $\theta_2$ modify the in vitro dissolution profiles to
 
 Parameters $\theta_1$ and $\theta_2$ therefore serve to quantify the in vitro to in vivo extrapolation (IVIVE) of the dissolution profiles.  It is acknowledged here that this IVIVE is a major assumption of the model and is adopted here for the purposes of demonstrating the steps of the VBE workflow. The reader is referred to the literature on the various approaches to oral IVIVE that are outside the scope of the present work [@Chilukuri2007; @Nguyen2017]. An alternative approach to scaling the Weibull parameters, not pursued here, would be to introduce a simple individual-specific time scaling of the dissolution profile to describe the IVIVE by mapping the in vitro dissolution profile to the in vivo context.  This time-scaling method has the advantage that the in vivo dissolution profile retains the overall shape of the in vitro profile.  
   
-### openVBE code
+### ospsuite.VBEToolbox code
   
 ```{r}
 referenceSimulationFilePath <- file.path(subfolder,"reference_formulation.pkml")
@@ -80,7 +80,7 @@ A sensitivity analysis was performed to identify the individual-specific model p
 Figure 6B shows the support points inferred by the NPOD algorithm that approximates the joint posterior distribution of parameters $\theta_1$ and $\theta_2$. 
 The probability of each support point is represented by its color.
 
-### openVBE code
+### ospsuite.VBEToolbox code
 
 ```{r}
 outputPath <- "Organism|PeripheralVenousBlood|Bupropion human 1st order|Plasma (Peripheral Venous Blood)"
@@ -88,10 +88,10 @@ outputPath <- "Organism|PeripheralVenousBlood|Bupropion human 1st order|Plasma (
 
 Identified individual-specific parameters that are uncertain and influential with respect to plasma concentration profiles.
 
-Note that `library(ospsuite.openVBE)` also loads `ospsuite` package which allows to directly access the namespace of the latter package.
+Note that `library(ospsuite.VBEToolbox)` also loads `ospsuite` package which allows to directly access the namespace of the latter package.
 
 > `ospDimensions` and `ospUnits` list all the dimensions and units available in the OSP Suite. 
-> These variables are exported by the `ospsuite` package. Loading `ospsuite.openVBE` then allows to directly access them.
+> These variables are exported by the `ospsuite` package. Loading `ospsuite.VBEToolbox` then allows to directly access them.
 
 
 ```{r}
@@ -160,7 +160,7 @@ Bupropion plasma concentration versus time profiles were simulated for the virtu
 
 Figure 6F shows a post-hoc external validation of the two-cluster Gaussian mixture model (Figure 6C) by comparing the simulated bupropion plasma concentration range following administration of the T product with the corresponding observations.
 
-### openVBE code
+### ospsuite.VBEToolbox code
 
 ```{r}
 demographyRanges <- list(
@@ -197,7 +197,7 @@ As in Figure 5, the red bands in Figure 7A-D show the distribution of the point 
 
 In contrast, at large trial study sizes, the Cmax GMR confidence bands fell outside the 0.80-1.25 BE range for the crossover design (Figure 7C) and overlapped with the 0.80 lower limit under the parallel design (Figure 7D).   This failure to demonstrate BE is to be expected considering the faster release of bupropion from the R (sustained release) product compared to the T (extended release). Consequently, as shown in Figure 7E, the probability of bioequivalence for Cmax was near zero under both trial designs.
 
-### openVBE code
+### ospsuite.VBEToolbox code
 
 Runs the clinical trial simulations
 

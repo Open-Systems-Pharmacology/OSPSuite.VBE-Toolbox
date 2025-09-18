@@ -1,5 +1,5 @@
 
-# ospsuite.openVBE
+# ospsuite.VBEToolbox
 
 <!-- badges: start -->
 
@@ -10,11 +10,11 @@
 📦 Package
 <!-- badges: end -->
 
-The goal of `openVBE` is to provide a toolbox for assessing virtual bioequivalence (**VBE**) of [Open Systems Pharmacology Suite](https://docs.open-systems-pharmacology.org/) models.
+The goal of `ospsuite.VBEToolbox` is to provide a toolbox for assessing virtual bioequivalence (**VBE**) of [Open Systems Pharmacology Suite](https://docs.open-systems-pharmacology.org/) models.
 
 ## Installation
 
-You can install the development version of `openVBE` like so:
+You can install the development version of `ospsuite.VBEToolbox` like so:
 
 ``` r
 # Packages handy for installing a Github package
@@ -27,7 +27,7 @@ If you wish to use the package bundle instead, Linux and Windows bundles are ava
 
 ## Citation
 
-The method provided in `openVBE` are detailed in a peer-reviewed article entitled *An open-source framework for virtual bioequivalence modeling and clinical trial design*, published in [CPT: Pharmacometrics & Systems Pharmacology]().
+The method provided in `ospsuite.VBEToolbox` are detailed in a peer-reviewed article entitled *An open-source framework for virtual bioequivalence modeling and clinical trial design*, published in [CPT: Pharmacometrics & Systems Pharmacology]().
 
 How to cite:
 

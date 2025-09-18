@@ -32,16 +32,16 @@ This case study uses an integrated model consisting of the MoBi® dermal absorpt
 
 As Bronaugh & Franz [@Bronaugh1986] did not provide testosterone plasma concentration data for subjects treated with the petrolatum formulation, for the purposes of this case study, we used their reported testosterone dermal absorption rate along with the testosterone systemic clearance and volume of distribution values from Bi et al. [@Bi2018], to generate simulated plasma concentration profiles as described in Supplementary Materials 1. These individualized profiles are used as data set D1 for this illustrative example, and each profile is associated with a virtual individual characterized by body weight.  The collective body weights of all virtual individuals in this example constitute data set D2.  The distribution of body weights is derived from Bi et al. [@Bi2018]. 
 
-### openVBE code
+### ospsuite.VBEToolbox code
 
 The following code gets the Data sets D1 and D2 from `pkDataFilePath = "pk_data_reference.csv"` and `studyPopulationDataFilePath = "population_data.csv"` respectively.
 
 ```{r}
-library(ospsuite.openVBE)
+library(ospsuite.VBEToolbox)
 
 dateTime <- paste0(format(Sys.Date(), "%Y%m%d"), "_", format(Sys.time(), "%H%M%S"))
 exampleName <- "testosterone-dermal"
-subfolder <- system.file("examples", exampleName, package="ospsuite.openVBE")
+subfolder <- system.file("examples", exampleName, package="ospsuite.VBEToolbox")
 
 # D1
 pkDataFilePath <- file.path(subfolder, "pk_data_reference.csv")
@@ -56,7 +56,7 @@ The MoBi® skin absorption model [@MoBiSkin2019] was optimized, as described in 
 
 Once validated, the resulting testosterone dermal absorption model was appended to a single systemic compartment to represent in vivo systemic concentrations following absorption from skin. The nominal values of testosterone clearance and volume of distribution for the systemic compartment were adopted from Bi et al. [@Bi2018].  Two such in vivo testosterone dermal absorption models were constructed, one for each vehicle.  The testosterone systemic disposition in these two models was assumed to be the same, and the only differences between them lay in their respective values of the optimized vehicle-specific parameters, $K_{v/sc}$ and $\Delta_{trans}$.
 
-### openVBE code
+### ospsuite.VBEToolbox code
 
 ```{r}
 referenceSimulationFilePath <- file.path(subfolder,"reference_formulation.pkml")
@@ -68,7 +68,7 @@ testSimulationFilePath <- file.path(subfolder,"test_formulation.pkml")
 Based on sensitivity analyses conducted in Hamadeh et al. [Hamadeh2022] on the MoBi® skin absorption model, permeability across stratum corneum lipid bilayers ($\log k_{trans}$) was identified as an influential parameter in the dermal absorption of testosterone.  An additive individual-specific perturbation $\theta_1$ to $\log k_{trans}$, ranging within $[-1,1]$, was selected for inference from the data set **D1**.
 Also selected for inference from this data set is a scaling parameter, $\theta_1$ and $\theta_2$ and the demographic description of the virtual population, which, in this example, consists of the individual weight.  The posterior probability of each support point is given by the point color. 
 
-### openVBE code
+### ospsuite.VBEToolbox code
 
 ```{r}
 outputPath <- "DERMAL_APPLICATION_AREA|in_vivo_sink|permeant|whole_body_concentration"
@@ -134,7 +134,7 @@ Figure 4H overlays the simulated testosterone plasma concentration ranges for th
 
 A post-hoc external validation of the four-cluster model was also performed by comparing the simulated testosterone plasma concentrations versus time profiles of the virtual population following dermal application of a 3 &mu;g/cm<sup>2</sup> dose via the T product against corresponding measurements.  This comparison, in Figure 4I, shows that T product model was largely able to predict the range of the measured testosterone plasma concentration profile. 
 
-### openVBE code
+### ospsuite.VBEToolbox code
 
 Parameters to describe demographics (body weight) of study population to create a virtual population:
 
@@ -185,7 +185,7 @@ Figure 5 shows the results of the virtual bioequivalence assessment that was per
 
 As expected from a visual inspection of Figure 4H, the two formulations were not bioequivalent in terms of AUC or Cmax.  In Figure 5 (panels A-D), confidence intervals of the AUC and Cmax GMR ratios do not fall within the 0.80 – 1.25 BE range for either the crossover or parallel study designs.  The probability of bioequivalence between the ethylene glycol and petrolatum testosterone formulations for trial sizes between 5 and 50 are also shown in Figure 5E.  Under both the crossover and parallel trial designs the probability of bioequivalence BE was very small (<0.05) in terms of both the AUC and Cmax.  
 
-### openVBE code
+### ospsuite.VBEToolbox code
 
 ```{r}
 ctsResults <- runClinicalTrialSimulation(virtualPopulationSimulationResults = refAndTestSimulationsInVirtualPopulation,
