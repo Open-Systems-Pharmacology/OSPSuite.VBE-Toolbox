@@ -158,7 +158,6 @@ VirtualPopulation <- R6::R6Class(classname = "VirtualPopulation",
                                  public = list(
                                    #' @description
                                    #' Initialize a new `VirtualPopulation` object.
-                                   #'
                                    #' @param inferredDistribution A distribution object for generating virtual individuals.
                                    #' @param demographyRanges A ospsuiteR PopulationCharacteristics R6 object OR a list specifying demographic constraints (e.g., age range, weight limits).
                                    #' @param numberOfVirtualIndividuals Integer. Number of virtual individuals to simulate. Default is 100.
@@ -181,8 +180,8 @@ VirtualPopulation <- R6::R6Class(classname = "VirtualPopulation",
                                    },
                                    #' @description
                                    #' Adds dataframes for the virtual population to be simulated.  Both a reference and test population dataframe are input to alow for possibly different parameter paths in the corresponding reference and test simulations.
-                                   #' @param referencePopulationDataframe
-                                   #' @param testPopulationDataframe
+                                   #' @param referencePopulationDataframe A PK-Sim population dataframe, in which all parameter paths are found in the reference simulation.
+                                   #' @param testPopulationDataframe A PK-Sim population dataframe, in which all parameter paths are found in the test simulation.
                                    #' @return None. Adds referencePopulationDataframe and testPopulationDataframe as dataframes to be used when simulating the reference and test models.
                                    addPopulationDataFrames = function(referencePopulationDataframe,testPopulationDataframe){
                                      private$.referencePopulationDataframe <- referencePopulationDataframe
@@ -438,6 +437,7 @@ perturbNormally <- function(params, SD) {
   return(perturbedParams)
 }
 
+
 #' @title simulateVirtualPopulation
 #' @description Simulate a virtual population.
 #' @param referenceSimulationFilePath The path to the reference simulation file.
@@ -460,14 +460,51 @@ simulateVirtualPopulation <- function(referenceSimulationFilePath,
                                       resolutionPtsMin,
                                       iovListSD,
                                       iovListCV) {
+
+  referenceSimulation <- ospsuite::loadSimulation(referenceSimulationFilePath)
+  testSimulation <- ospsuite::loadSimulation(testSimulationFilePath)
+  return(simulateVirtualPopulationFromPKML(referenceSimulation,
+                                           testSimulation,
+                                           referencePopulationDataframe,
+                                           testPopulationDataframe,
+                                           numberOfReplicates,
+                                           outputPath,
+                                           startTime,
+                                           endTime,
+                                           resolutionPtsMin,
+                                           iovListSD,
+                                           iovListCV))
+}
+
+
+#' @title simulateVirtualPopulationFromPKML
+#' @description Simulate a virtual population.
+#' @param referenceSimulation The reference simulation object.
+#' @param testSimulation The test simulation object.
+#' @param referencePopulationDataframe The reference population dataframe.
+#' @param testPopulationDataframe The test population dataframe.
+#' @param outputPath The output path.
+#' @param startTime The start time of the simulation.
+#' @param endTime The end time of the simulation.
+#' @param resolutionPtsMin The resolution of the simulation.
+#' @import ospsuite
+simulateVirtualPopulationFromPKML <- function(referenceSimulation,
+                                              testSimulation,
+                                              referencePopulationDataframe,
+                                              testPopulationDataframe,
+                                              numberOfReplicates,
+                                              outputPath,
+                                              startTime,
+                                              endTime,
+                                              resolutionPtsMin,
+                                              iovListSD,
+                                              iovListCV) {
   #load simulations
   cli::cli_progress_step("Simulating virtual population", spinner = TRUE)
-  referenceSimulation <- ospsuite::loadSimulation(referenceSimulationFilePath)
   referenceSimulation$outputSelections$clear()
   ospsuite::addOutputs(quantitiesOrPaths = outputPath, simulation = referenceSimulation)
   cli::cli_progress_update()
 
-  testSimulation <- ospsuite::loadSimulation(testSimulationFilePath)
   testSimulation$outputSelections$clear()
   ospsuite::addOutputs(quantitiesOrPaths = outputPath, simulation = testSimulation)
   cli::cli_progress_update()
