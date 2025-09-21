@@ -160,13 +160,13 @@ VirtualPopulation <- R6::R6Class(classname = "VirtualPopulation",
                                    #' Initialize a new `VirtualPopulation` object.
                                    #'
                                    #' @param inferredDistribution A distribution object for generating virtual individuals.
-                                   #' @param demographyRanges A list specifying demographic constraints (e.g., age range, weight limits).
+                                   #' @param demographyRanges A ospsuiteR PopulationCharacteristics R6 object OR a list specifying demographic constraints (e.g., age range, weight limits).
                                    #' @param numberOfVirtualIndividuals Integer. Number of virtual individuals to simulate. Default is 100.
                                    #' @param proportionOfFemales Numeric. Proportion (%) of females in the virtual population. Default is 50.
                                    #' @param numberOfClusters Integer. Number of clusters to use for stratifying the distribution. Default is 4.
                                    #' @return A new `VirtualPopulation` object.
-                                   initialize = function(inferredDistribution,
-                                                         demographyRanges,
+                                   initialize = function(inferredDistribution = NULL,
+                                                         demographyRanges = NULL,
                                                          numberOfVirtualIndividuals = 100,
                                                          proportionOfFemales = 50,
                                                          numberOfClusters = 4){
@@ -307,12 +307,11 @@ VirtualPopulation <- R6::R6Class(classname = "VirtualPopulation",
                                                                        numberOfVirtualIndividuals,
                                                                        proportionOfFemales,
                                                                        numberOfClusters){
-                                     clusters <- getClusters(private$.inferredDistribution,
-                                                             numberOfClusters)
+
                                      populationDataFrames <- createVirtualPopulation(private$.inferredDistribution,
                                                                                      proportionOfFemales,
                                                                                      numberOfVirtualIndividuals,
-                                                                                     clusters,
+                                                                                     numberOfClusters,
                                                                                      demographyRanges)
                                      private$.referencePopulationDataframe <- populationDataFrames$referencePopulationDataframe
                                      private$.testPopulationDataframe <- populationDataFrames$testPopulationDataframe
@@ -349,14 +348,24 @@ VirtualPopulation <- R6::R6Class(classname = "VirtualPopulation",
 #' @param inferredDistribution The inferred distribution.
 #' @param proportionOfFemales Proportion of females in the virtual population in percent
 #' @param numberOfVirtualIndividuals The number of virtual individuals to create.
-#' @param clusters List of clusters.
-#' @param demographyRanges The demography ranges.
+#' @param numberOfClusters Number of Gaussian Mixture Model clusters to fit to the inferred distribution.
+#' @param demographyRanges  A list of demography ranges or an ospsuiteR PopulationCharacteristics R6 object.
 #' @importFrom stats rlnorm
 createVirtualPopulation <- function(inferredDistribution,
                                     proportionOfFemales,
                                     numberOfVirtualIndividuals,
-                                    clusters,
+                                    numberOfClusters,
                                     demographyRanges) {
+
+
+
+  # case where demographyRanges is a list
+  # case where demographyRanges is a populationCharacteristics R6 object.
+  # case where there is an inferred distribution
+
+
+
+
   # create virtual population
   cli::cli_h1("Virtual Population")
   cli::cli_progress_step("Create virtual population characteristics")
@@ -377,40 +386,16 @@ createVirtualPopulation <- function(inferredDistribution,
 
     cofactorPathDictionary <- cofactorPaths
   } else {
-    weightRange <- demographyRanges$weight$range
-    weightUnits <- demographyRanges$weight$units
-    heightRange <- demographyRanges$height$range
-    heightUnits <- demographyRanges$height$units
-    ageRange <- demographyRanges$age$range
-    ageUnits <- demographyRanges$age$units
-    gestationalAgeRange <- demographyRanges$gestationalAge$range
-    gestationalAgeUnits <- demographyRanges$gestationalAge$units
-    BMIRange <- demographyRanges$BMI$range
-    BMIUnits <- demographyRanges$BMI$units
 
-    virtualPopnChars <- createPopulationCharacteristics(
-      species = unique(inferredDistribution$demographicData$species),
-      population = unique(inferredDistribution$demographicData$population),
-      numberOfIndividuals = numberOfVirtualIndividuals,
-      proportionOfFemales = proportionOfFemales,
-      weightMin = weightRange[1] %||% minNull(inferredDistribution$demographicData[[standardColumnNames$weightColumn]]),
-      weightMax = weightRange[2] %||% maxNull(inferredDistribution$demographicData[[standardColumnNames$weightColumn]]),
-      weightUnit = weightUnits %||% inferredDistribution$cofactorUnits[[standardColumnNames$weightColumn]] %||% ospsuite::ospUnits$Mass$kg,
-      heightMin = heightRange[1] %||% minNull(inferredDistribution$demographicData[[standardColumnNames$heightColumn]]),
-      heightMax = heightRange[2] %||% maxNull(inferredDistribution$demographicData[[standardColumnNames$heightColumn]]),
-      heightUnit = heightUnits %||% inferredDistribution$cofactorUnits[[standardColumnNames$heightColumn]] %||% ospsuite::ospUnits$Length$cm,
-      ageMin = ageRange[1] %||% minNull(inferredDistribution$demographicData[[standardColumnNames$ageColumn]]),
-      ageMax = ageRange[2] %||% maxNull(inferredDistribution$demographicData[[standardColumnNames$ageColumn]]),
-      ageUnit = ageUnits %||% inferredDistribution$cofactorUnits[[standardColumnNames$ageColumn]] %||% ospsuite::ospUnits$`Age in years`$`year(s)`,
-      gestationalAgeMin = gestationalAgeRange[1] %||% minNull(inferredDistribution$demographicData[[standardColumnNames$gestationalAgeColumn]]),
-      gestationalAgeMax = gestationalAgeRange[2] %||% maxNull(inferredDistribution$demographicData[[standardColumnNames$gestationalAgeColumn]]),
-      gestationalAgeUnit = gestationalAgeUnits %||% inferredDistribution$cofactorUnits[[standardColumnNames$gestationalAgeColumn]] %||% ospsuite::ospUnits$`Age in weeks`$`week(s)`,
-      BMIMin = BMIRange[1],
-      BMIMax = BMIRange[2],
-      BMIUnit = BMIUnits %||% ospsuite::ospUnits$BMI$`kg/m²`
-    )
+
+    if ("PopulationCharacteristics" %in% class(demographyRanges)){
+      virtualPopnChars <- demographyRanges
+    } else {
+      virtualPopnChars <- getPopulationCharacteristicsFromDemographyRanges(demographyRanges,proportionOfFemales,numberOfVirtualIndividuals,inferredDistribution)
+    }
 
     virtualPopn <- createPopulation(populationCharacteristics = virtualPopnChars)
+
     populationDataframe <- populationToDataFrame(population = virtualPopn$population)
     cofactorPathDictionary <- individualParameterPaths
   }
@@ -449,6 +434,15 @@ createVirtualPopulation <- function(inferredDistribution,
     })
 
     givenPoints <- c(rep(NA, length(parameterList)), cofactorValues)
+
+
+
+    # If an 'inferredDistribution' object is supplied, fit a Guassian Mixture Model to it containing a total of 'numberOfClusters' clusters.
+    clusters <- NULL
+    if(!is.null(inferredDistribution)){
+      clusters <- getClusters(inferredDistribution,
+                              numberOfClusters)
+    }
 
     # Sample from conditional distribution and ensure that sample is within parameter bounds
     thetaSamples <- samplesFromMixture(
@@ -631,4 +625,44 @@ runClinicalTrialSimulation <- function(virtualPopulationSimulationResults,
   # make_report(sim=virtualPopulationSimulationResults,
   #             be=extRes)
   return(extRes)
+}
+
+
+getPopulationCharacteristicsFromDemographyRanges <- function(demographyRanges,proportionOfFemales,numberOfVirtualIndividuals,inferredDistribution){
+
+  weightRange <- demographyRanges$weight$range
+  weightUnits <- demographyRanges$weight$units
+  heightRange <- demographyRanges$height$range
+  heightUnits <- demographyRanges$height$units
+  ageRange <- demographyRanges$age$range
+  ageUnits <- demographyRanges$age$units
+  gestationalAgeRange <- demographyRanges$gestationalAge$range
+  gestationalAgeUnits <- demographyRanges$gestationalAge$units
+  BMIRange <- demographyRanges$BMI$range
+  BMIUnits <- demographyRanges$BMI$units
+
+  virtualPopnChars <- createPopulationCharacteristics(
+    species = unique(inferredDistribution$demographicData$species),
+    population = unique(inferredDistribution$demographicData$population),
+    numberOfIndividuals = numberOfVirtualIndividuals,
+    proportionOfFemales = proportionOfFemales,
+    weightMin = weightRange[1] %||% minNull(inferredDistribution$demographicData[[standardColumnNames$weightColumn]]),
+    weightMax = weightRange[2] %||% maxNull(inferredDistribution$demographicData[[standardColumnNames$weightColumn]]),
+    weightUnit = weightUnits %||% inferredDistribution$cofactorUnits[[standardColumnNames$weightColumn]] %||% ospsuite::ospUnits$Mass$kg,
+    heightMin = heightRange[1] %||% minNull(inferredDistribution$demographicData[[standardColumnNames$heightColumn]]),
+    heightMax = heightRange[2] %||% maxNull(inferredDistribution$demographicData[[standardColumnNames$heightColumn]]),
+    heightUnit = heightUnits %||% inferredDistribution$cofactorUnits[[standardColumnNames$heightColumn]] %||% ospsuite::ospUnits$Length$cm,
+    ageMin = ageRange[1] %||% minNull(inferredDistribution$demographicData[[standardColumnNames$ageColumn]]),
+    ageMax = ageRange[2] %||% maxNull(inferredDistribution$demographicData[[standardColumnNames$ageColumn]]),
+    ageUnit = ageUnits %||% inferredDistribution$cofactorUnits[[standardColumnNames$ageColumn]] %||% ospsuite::ospUnits$`Age in years`$`year(s)`,
+    gestationalAgeMin = gestationalAgeRange[1] %||% minNull(inferredDistribution$demographicData[[standardColumnNames$gestationalAgeColumn]]),
+    gestationalAgeMax = gestationalAgeRange[2] %||% maxNull(inferredDistribution$demographicData[[standardColumnNames$gestationalAgeColumn]]),
+    gestationalAgeUnit = gestationalAgeUnits %||% inferredDistribution$cofactorUnits[[standardColumnNames$gestationalAgeColumn]] %||% ospsuite::ospUnits$`Age in weeks`$`week(s)`,
+    BMIMin = BMIRange[1],
+    BMIMax = BMIRange[2],
+    BMIUnit = BMIUnits %||% ospsuite::ospUnits$BMI$`kg/m²`
+  )
+
+  return(virtualPopnChars)
+
 }
