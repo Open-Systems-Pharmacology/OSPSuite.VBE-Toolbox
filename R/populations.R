@@ -167,7 +167,7 @@ VirtualPopulation <- R6::R6Class(classname = "VirtualPopulation",
                                    #' @return A new `VirtualPopulation` object.
                                    initialize = function(inferredDistribution = NULL,
                                                          demographyRanges = NULL,
-                                                         numberOfVirtualIndividuals = 100,
+                                                         numberOfVirtualIndividuals = NULL,
                                                          proportionOfFemales = 50,
                                                          numberOfClusters = 4){
                                      private$.inferredDistribution <- inferredDistribution
@@ -357,15 +357,6 @@ createVirtualPopulation <- function(inferredDistribution,
                                     numberOfClusters,
                                     demographyRanges) {
 
-
-
-  # case where demographyRanges is a list
-  # case where demographyRanges is a populationCharacteristics R6 object.
-  # case where there is an inferred distribution
-
-
-
-
   # create virtual population
   cli::cli_h1("Virtual Population")
   cli::cli_progress_step("Create virtual population characteristics")
@@ -387,11 +378,12 @@ createVirtualPopulation <- function(inferredDistribution,
     cofactorPathDictionary <- cofactorPaths
   } else {
 
-
     if ("PopulationCharacteristics" %in% class(demographyRanges)){
       virtualPopnChars <- demographyRanges
+      numberOfVirtualIndividuals <- numberOfVirtualIndividuals %||% demographyRanges$numberOfIndividuals
     } else {
       virtualPopnChars <- getPopulationCharacteristicsFromDemographyRanges(demographyRanges,proportionOfFemales,numberOfVirtualIndividuals,inferredDistribution)
+      numberOfVirtualIndividuals <- numberOfVirtualIndividuals %||% 100
     }
 
     virtualPopn <- createPopulation(populationCharacteristics = virtualPopnChars)
@@ -399,73 +391,18 @@ createVirtualPopulation <- function(inferredDistribution,
     populationDataframe <- populationToDataFrame(population = virtualPopn$population)
     cofactorPathDictionary <- individualParameterPaths
   }
-  referencePopulationDataframe <- populationDataframe
-  testPopulationDataframe <- populationDataframe
 
-  # update the parameter paths to match new simulation
-  parameterList <- getParameterListFunctions[[inferredDistribution$method]](inferredDistribution)
-  referenceSimulationParameterPaths <- getParameterPathsInReferenceSimulation(parameterList)
-  testSimulationParameterPaths <- getParameterPathsInTestSimulation(parameterList)
 
-  parameterPaths <- names(testPopulationDataframe)
-  for (j in seq_along(parameterList)) {
-    parameterPaths[parameterPaths == referenceSimulationParameterPaths[j]] <- testSimulationParameterPaths[j]
+  if(is.null(inferredDistribution)){
+    return(list(referencePopulationDataframe = populationDataframe, testPopulationDataframe = populationDataframe))
   }
-  colnames(testPopulationDataframe) <- parameterPaths
 
-  cofactorNames <- intersect(allCofactorNames, names(inferredDistribution$demographicData))
+  return(sampleInferredDistribution(inferredDistribution,
+                                    populationDataframe,
+                                    numberOfVirtualIndividuals,
+                                    numberOfClusters,
+                                    cofactorPathDictionary))
 
-  # find theta values of closest individual in reference population
-  i <- 1
-  cli::cli_progress_step(
-    "Sampling from conditional distribution: individual {i}/{numberOfVirtualIndividuals}",
-    spinner = TRUE
-  )
-  for (i in 1:numberOfVirtualIndividuals) {
-    # read in ith person's weight and height
-    cofactorValues <- sapply(cofactorNames, function(cof) {
-      dimension <- cofactorDimensions[[cof]]
-      ospsuite::toUnit(
-        quantityOrDimension = dimension,
-        values = populationDataframe[[cofactorPathDictionary[[cof]]]][i],
-        sourceUnit = ospsuite::getBaseUnit(dimension),
-        targetUnit = inferredDistribution$cofactorUnits[[cof]]
-      )
-    })
-
-    givenPoints <- c(rep(NA, length(parameterList)), cofactorValues)
-
-
-
-    # If an 'inferredDistribution' object is supplied, fit a Guassian Mixture Model to it containing a total of 'numberOfClusters' clusters.
-    clusters <- NULL
-    if(!is.null(inferredDistribution)){
-      clusters <- getClusters(inferredDistribution,
-                              numberOfClusters)
-    }
-
-    # Sample from conditional distribution and ensure that sample is within parameter bounds
-    thetaSamples <- samplesFromMixture(
-      mclstResults = clusters,
-      givenPoints = givenPoints,
-      numberOfSamples = 1,
-      lowerBounds = sapply(parameterList, function(x) {
-        x$lowerBound
-      }),
-      upperBounds = sapply(parameterList, function(x) {
-        x$upperBound
-      })
-    )
-    cli::cli_progress_update()
-
-    for (j in seq_along(parameterList)) {
-      referencePopulationDataframe[[referenceSimulationParameterPaths[j]]][i] <- thetaSamples[, j]
-      testPopulationDataframe[[testSimulationParameterPaths[j]]][i] <- thetaSamples[, j]
-    }
-  }
-  cli::cli_progress_done()
-
-  return(list(referencePopulationDataframe = referencePopulationDataframe, testPopulationDataframe = testPopulationDataframe))
 }
 
 scaleLognormally <- function(params, CV) {
@@ -664,5 +601,81 @@ getPopulationCharacteristicsFromDemographyRanges <- function(demographyRanges,pr
   )
 
   return(virtualPopnChars)
+
+}
+
+
+
+
+sampleInferredDistribution <- function(inferredDistribution,
+                                       populationDataframe,
+                                       numberOfVirtualIndividuals,
+                                       numberOfClusters,
+                                       cofactorPathDictionary) {
+
+  referencePopulationDataframe <- populationDataframe
+  testPopulationDataframe <- populationDataframe
+
+  # Extend the population data frames for the reference and test simulation with the inferred parameter samples
+  parameterList <- getParameterListFunctions[[inferredDistribution$method]](inferredDistribution)
+  referenceSimulationParameterPaths <- getParameterPathsInReferenceSimulation(parameterList)
+  testSimulationParameterPaths <- getParameterPathsInTestSimulation(parameterList)
+
+  for (j in seq_along(parameterList)) {
+    referenceSimulationParameterPaths[[referenceSimulationParameterPaths[j]]] <- NA
+    testPopulationDataframe[[testSimulationParameterPaths[j]]] <- NA
+  }
+
+  cofactorNames <- intersect(allCofactorNames, names(inferredDistribution$demographicData))
+
+  # If an 'inferredDistribution' object is supplied, fit a Guassian Mixture Model to it containing a total of 'numberOfClusters' clusters.
+  clusters <- NULL
+  if(!is.null(inferredDistribution)){
+    clusters <- getClusters(inferredDistribution,
+                            numberOfClusters)
+  }
+
+  # Find theta values of closest individual in reference population
+  i <- 1
+  cli::cli_progress_step(
+    "Sampling from conditional distribution: individual {i}/{numberOfVirtualIndividuals}",
+    spinner = TRUE
+  )
+
+  for (i in 1:numberOfVirtualIndividuals) {
+    # read in ith person's weight and height
+    cofactorValues <- sapply(cofactorNames, function(cof) {
+      dimension <- cofactorDimensions[[cof]]
+      ospsuite::toUnit(
+        quantityOrDimension = dimension,
+        values = populationDataframe[[cofactorPathDictionary[[cof]]]][i],
+        sourceUnit = ospsuite::getBaseUnit(dimension),
+        targetUnit = inferredDistribution$cofactorUnits[[cof]]
+      )
+    })
+
+    givenPoints <- c(rep(NA, length(parameterList)), cofactorValues)
+
+    # Sample from conditional distribution and ensure that sample is within parameter bounds
+    thetaSamples <- samplesFromMixture(
+      mclstResults = clusters,
+      givenPoints = givenPoints,
+      numberOfSamples = 1,
+      lowerBounds = sapply(parameterList, function(x) {
+        x$lowerBound
+      }),
+      upperBounds = sapply(parameterList, function(x) {
+        x$upperBound
+      })
+    )
+    cli::cli_progress_update()
+
+    for (j in seq_along(parameterList)) {
+      referencePopulationDataframe[[referenceSimulationParameterPaths[j]]][i] <- thetaSamples[, j]
+      testPopulationDataframe[[testSimulationParameterPaths[j]]][i] <- thetaSamples[, j]
+    }
+  }
+  cli::cli_progress_done()
+  return(list(referencePopulationDataframe = referencePopulationDataframe, testPopulationDataframe = testPopulationDataframe))
 
 }
