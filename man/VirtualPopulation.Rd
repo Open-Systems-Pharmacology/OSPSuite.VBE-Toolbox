@@ -110,6 +110,8 @@ vpop$simulateVirtualPopulation(
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-VirtualPopulation-new}{\code{VirtualPopulation$new()}}
+\item \href{#method-VirtualPopulation-addPopulationDataFrames}{\code{VirtualPopulation$addPopulationDataFrames()}}
+\item \href{#method-VirtualPopulation-checkPopulationDataFrames}{\code{VirtualPopulation$checkPopulationDataFrames()}}
 \item \href{#method-VirtualPopulation-addAdditiveIOV}{\code{VirtualPopulation$addAdditiveIOV()}}
 \item \href{#method-VirtualPopulation-addMultiplicativeIOV}{\code{VirtualPopulation$addMultiplicativeIOV()}}
 \item \href{#method-VirtualPopulation-simulateVirtualPopulation}{\code{VirtualPopulation$simulateVirtualPopulation()}}
@@ -123,9 +125,9 @@ vpop$simulateVirtualPopulation(
 Initialize a new \code{VirtualPopulation} object.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{VirtualPopulation$new(
-  inferredDistribution,
-  demographyRanges,
-  numberOfVirtualIndividuals = 100,
+  inferredDistribution = NULL,
+  demographyRanges = NULL,
+  numberOfVirtualIndividuals = NULL,
   proportionOfFemales = 50,
   numberOfClusters = 4
 )}\if{html}{\out{</div>}}
@@ -136,7 +138,7 @@ Initialize a new \code{VirtualPopulation} object.
 \describe{
 \item{\code{inferredDistribution}}{A distribution object for generating virtual individuals.}
 
-\item{\code{demographyRanges}}{A list specifying demographic constraints (e.g., age range, weight limits).}
+\item{\code{demographyRanges}}{A ospsuiteR PopulationCharacteristics R6 object OR a list specifying demographic constraints (e.g., age range, weight limits).}
 
 \item{\code{numberOfVirtualIndividuals}}{Integer. Number of virtual individuals to simulate. Default is 100.}
 
@@ -148,6 +150,44 @@ Initialize a new \code{VirtualPopulation} object.
 }
 \subsection{Returns}{
 A new \code{VirtualPopulation} object.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-VirtualPopulation-addPopulationDataFrames"></a>}}
+\if{latex}{\out{\hypertarget{method-VirtualPopulation-addPopulationDataFrames}{}}}
+\subsection{Method \code{addPopulationDataFrames()}}{
+Adds dataframes for the virtual population to be simulated.  Both a reference and test population dataframe are input to alow for possibly different parameter paths in the corresponding reference and test simulations.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{VirtualPopulation$addPopulationDataFrames(
+  referencePopulationDataframe,
+  testPopulationDataframe
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{referencePopulationDataframe}}{A PK-Sim population dataframe, in which all parameter paths are found in the reference simulation.}
+
+\item{\code{testPopulationDataframe}}{A PK-Sim population dataframe, in which all parameter paths are found in the test simulation.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+None. Adds referencePopulationDataframe and testPopulationDataframe as dataframes to be used when simulating the reference and test models.
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-VirtualPopulation-checkPopulationDataFrames"></a>}}
+\if{latex}{\out{\hypertarget{method-VirtualPopulation-checkPopulationDataFrames}{}}}
+\subsection{Method \code{checkPopulationDataFrames()}}{
+Check that population dataframes have been set up, either by supplying demographyRanges at initialization of the \code{VirtualPopulation} or by supplying population data frames via the function \code{addPopulationDataFrames}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{VirtualPopulation$checkPopulationDataFrames()}\if{html}{\out{</div>}}
+}
+
+\subsection{Returns}{
+None.
 }
 }
 \if{html}{\out{<hr>}}

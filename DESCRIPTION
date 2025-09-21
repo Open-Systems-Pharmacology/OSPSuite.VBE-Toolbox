@@ -46,7 +46,7 @@ Imports:
 Depends:
   ospsuite,
   mclust
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Remotes: 
     ospsuite=Open-Systems-Pharmacology/OSPSuite-R
 Suggests: 

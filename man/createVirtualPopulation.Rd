@@ -8,7 +8,7 @@ createVirtualPopulation(
   inferredDistribution,
   proportionOfFemales,
   numberOfVirtualIndividuals,
-  clusters,
+  numberOfClusters,
   demographyRanges
 )
 }
@@ -19,9 +19,9 @@ createVirtualPopulation(
 
 \item{numberOfVirtualIndividuals}{The number of virtual individuals to create.}
 
-\item{clusters}{List of clusters.}
+\item{numberOfClusters}{Number of Gaussian Mixture Model clusters to fit to the inferred distribution.}
 
-\item{demographyRanges}{The demography ranges.}
+\item{demographyRanges}{A list of demography ranges or an ospsuiteR PopulationCharacteristics R6 object.}
 }
 \description{
 Create a virtual population.
