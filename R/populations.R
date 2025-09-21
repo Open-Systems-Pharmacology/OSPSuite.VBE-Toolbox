@@ -171,15 +171,33 @@ VirtualPopulation <- R6::R6Class(classname = "VirtualPopulation",
                                                          proportionOfFemales = 50,
                                                          numberOfClusters = 4){
                                      private$.inferredDistribution <- inferredDistribution
-                                     private$.createVirtualPopulation(demographyRanges = demographyRanges,
-                                                                      numberOfVirtualIndividuals = numberOfVirtualIndividuals,
-                                                                      proportionOfFemales = proportionOfFemales,
-                                                                      numberOfClusters = numberOfClusters)
 
+                                     if(!is.null(demographyRanges)){
+                                       private$.createVirtualPopulation(demographyRanges = demographyRanges,
+                                                                        numberOfVirtualIndividuals = numberOfVirtualIndividuals,
+                                                                        proportionOfFemales = proportionOfFemales,
+                                                                        numberOfClusters = numberOfClusters)
+                                     }
+                                   },
+                                   #' @description
+                                   #' Adds dataframes for the virtual population to be simulated.  Both a reference and test population dataframe are input to alow for possibly different parameter paths in the corresponding reference and test simulations.
+                                   #' @param referencePopulationDataframe
+                                   #' @param testPopulationDataframe
+                                   #' @return None. Adds referencePopulationDataframe and testPopulationDataframe as dataframes to be used when simulating the reference and test models.
+                                   addPopulationDataFrames = function(referencePopulationDataframe,testPopulationDataframe){
+                                     private$.referencePopulationDataframe <- referencePopulationDataframe
+                                     private$.testPopulationDataframe <- testPopulationDataframe
+                                   },
+                                   #' @description
+                                   #' Check that population dataframes have been set up, either by supplying demographyRanges at initialization of the `VirtualPopulation` or by supplying population data frames via the function `addPopulationDataFrames`.
+                                   #' @return None.
+                                   checkPopulationDataFrames = function(){
+                                     if (is.null(private$.referencePopulationDataframe) || is.null(private$.testPopulationDataframe)){
+                                       stop("Virtual population dataframe not added.")
+                                     }
                                    },
                                    #' @description
                                    #' Add additive inter-occasion variability (IOV) to a specific parameter in the virtual population.
-                                   #'
                                    #' @param parameterPath Character. The path to the parameter in the model to which additive IOV is applied.
                                    #' @param SD Numeric. Standard deviation of the additive IOV. Must be a single positive number.
                                    #' @return None. Adds to internal IOV list.
@@ -188,6 +206,7 @@ VirtualPopulation <- R6::R6Class(classname = "VirtualPopulation",
                                    #' vpop$addAdditiveIOV("PATH|TO|PARAMETER1", SD = 0.1)
                                    #' }
                                    addAdditiveIOV = function(parameterPath,SD){
+                                     self$checkPopulationDataFrames()
                                      if (!is.numeric(SD) || length(SD) != 1 || SD <= 0){
                                        stop("SD must be a single positive numeric value.")
                                      }
@@ -207,6 +226,7 @@ VirtualPopulation <- R6::R6Class(classname = "VirtualPopulation",
                                    #' }
 
                                    addMultiplicativeIOV = function(parameterPath,CV){
+                                     self$checkPopulationDataFrames()
                                      if (!is.numeric(CV) || length(CV) != 1 || CV <= 0){
                                        stop("CV must be a single positive numeric value.")
                                      }
