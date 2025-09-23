@@ -42,12 +42,12 @@ Imports:
     lme4,
     lmerTest,
     Matrix,
-    cli,
-    shiny,
-    shinyTree
+    cli
 Depends:
   ospsuite,
-  mclust
+  mclust,
+  shiny,
+  shinyTree
 RoxygenNote: 7.3.3
 Remotes: 
     ospsuite=Open-Systems-Pharmacology/OSPSuite-R

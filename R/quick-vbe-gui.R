@@ -1,4 +1,30 @@
-options(shiny.maxRequestSize = 100*1024^2)
+makeSummary <- function(input,refSim,testSim,refPopDf,testPopDf,outputPathToSimulate,wsvParameterPathsList){
+  paste("*********",
+        "\n*Summary*",
+        "\n*********",
+        "\n",
+        "\nSimulation settings",
+        "\n=====================",
+        "\nOutput quantity path to simulate:", outputPathToSimulate,
+        "\nSimulation start time time resolution:", input$simStartTime, input$simTimeUnit,
+        "\nSimulation start time time resolution:", input$simEndTime, input$simTimeUnit,
+        "\nSimulation time resolution:", input$simResolution,
+        "\n",
+        "\nBSV and WSV",
+        "\n=====================",
+        "\nBSV source:", input$BSVformChoice,
+        "\nWSV source:", input$WSVformChoice,
+        "\nICV for AUC:", input$ICV_AUC,
+        "\nICV for Cmax:", input$ICV_Cmax,
+        "\n",
+        "\nClinical trial",
+        "\n=====================",
+        "\nNumber of crossover trial replicates", input$CT_numberOfReplicates,
+        "\nNumber of trials per trial size", input$CT_n_trials,
+        "\nMinimum number of subjects", input$CT_subj_min,
+        "\nMaximum number of subjects", input$CT_subj_max,
+        "\nIncrement in number of subjects", input$CT_subj_step)
+}
 
 nn <- function(input){
   if(is.na(input)){
@@ -8,7 +34,7 @@ nn <- function(input){
 }
 
 runVBEGui <- function(input,refSim,testSim,refPopDf,testPopDf,outputPathToSimulate,wsvParameterPathsList){
-
+  summary <- makeSummary(input,refSim,testSim,refPopDf,testPopDf,outputPathToSimulate,wsvParameterPathsList)
   if(input$BSVformChoice == "Upload PK-Sim population CSV file"){
     demographyRanges <- NULL
     vp <- VirtualPopulation$new(demographyRanges = demographyRanges)
@@ -89,13 +115,15 @@ runVBEGui <- function(input,refSim,testSim,refPopDf,testPopDf,outputPathToSimula
   probabilityPlot <- plotVBEProbability(ctsResults)
   show(probabilityPlot)
 
-  vbeResults <- list(pkParametersData = pkParametersData, ctsResults = ctsResults , bandsPlot = bandsPlot , probabilityPlot = probabilityPlot)
+  vbeResults <- list(summary = summary, pkParametersData = pkParametersData, ctsResults = ctsResults , bandsPlot = bandsPlot , probabilityPlot = probabilityPlot)
 
   return(vbeResults)
 }
 
 #' @export
 runQuickVBE <- function(){
+
+  options(shiny.maxRequestSize = 100*1024^2)
 
   # =========================
   #           UI
@@ -520,6 +548,10 @@ runQuickVBE <- function(){
       content = function(file) {
         results <- runVBEGui(input = input,refSim = refSim$sim, testSim = testSim$sim, refPopDf = refSim$popDf , testPopDf = testSim$popDf , outputPathToSimulate = outputPathToSimulate$path, wsvParameterPathsList = wsvParameters$pathsList)
         fileNames <- NULL
+
+        fname <- paste0("summary", "_" , dateTime$now, ".txt")
+        write(x = results$summary, file = fname)
+        fileNames <- c(fileNames, fname)
 
         fname <- paste0("pkParametersData", "_" , dateTime$now, ".csv")
         write.csv(x = results$pkParametersData ,file = fname ,row.names = FALSE)
