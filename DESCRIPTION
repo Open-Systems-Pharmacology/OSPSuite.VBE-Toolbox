@@ -42,7 +42,9 @@ Imports:
     lme4,
     lmerTest,
     Matrix,
-    cli
+    cli,
+    shiny,
+    shinyTree
 Depends:
   ospsuite,
   mclust

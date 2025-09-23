@@ -278,6 +278,52 @@ VirtualPopulation <- R6::R6Class(classname = "VirtualPopulation",
 
                                      return(refAndTestSimulationsInVirtualPopulation)
 
+                                   },
+
+                                   #' @description
+                                   #' Run simulations on the virtual population using provided simulation templates.
+                                   #' @param referenceSimulation Reference simulation object.
+                                   #' @param testSimulation Test simulation object.
+                                   #' @param numberOfReplicates Integer. Number of replicate simulations per virtual subject. Default is 1.
+                                   #' @param outputPath Character. Directory to store simulation results.
+                                   #' @param startTime Numeric. Start time of the simulation window.
+                                   #' @param endTime Numeric. End time of the simulation window.
+                                   #' @param resolutionPtsMin Numeric. Output resolution in points per minute.
+                                   #'
+                                   #' @return A list containing results from reference and test population simulations.
+                                   #'
+                                   #' @examples
+                                   #' \dontrun{
+                                   #' vpop$simulateVirtualPopulationFromPKML(
+                                   #'   referenceSimulation = "refSim",
+                                   #'   testSimulation = "testSim",
+                                   #'   outputPath = "PATH|TO|OUTPUT",
+                                   #'   startTime = 0,
+                                   #'   endTime = 1440,
+                                   #'   resolutionPtsMin = 10
+                                   #' )
+                                   #' }
+                                   simulateVirtualPopulationFromPKML = function(referenceSimulation,
+                                                                                testSimulation,
+                                                                                numberOfReplicates = 1,
+                                                                                outputPath,
+                                                                                startTime,
+                                                                                endTime,
+                                                                                resolutionPtsMin){
+                                     refAndTestSimulationsInVirtualPopulation <- simulateVirtualPopulationFromPKML(referenceSimulation = referenceSimulation,
+                                                                                                                   testSimulation = testSimulation,
+                                                                                                                   referencePopulationDataframe = private$.referencePopulationDataframe,
+                                                                                                                   testPopulationDataframe = private$.testPopulationDataframe,
+                                                                                                                   numberOfReplicates = numberOfReplicates,
+                                                                                                                   outputPath = outputPath,
+                                                                                                                   startTime = startTime,
+                                                                                                                   endTime = endTime,
+                                                                                                                   resolutionPtsMin = resolutionPtsMin,
+                                                                                                                   iovListSD = private$.iovListSD,
+                                                                                                                   iovListCV = private$.iovListCV)
+
+                                     return(refAndTestSimulationsInVirtualPopulation)
+
                                    }
 
                                  ),

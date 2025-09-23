@@ -90,6 +90,21 @@ vpop$simulateVirtualPopulation(
   resolutionPtsMin = 10
 )
 }
+
+## ------------------------------------------------
+## Method `VirtualPopulation$simulateVirtualPopulationFromPKML`
+## ------------------------------------------------
+
+\dontrun{
+vpop$simulateVirtualPopulationFromPKML(
+  referenceSimulation = "refSim",
+  testSimulation = "testSim",
+  outputPath = "PATH|TO|OUTPUT",
+  startTime = 0,
+  endTime = 1440,
+  resolutionPtsMin = 10
+)
+}
 }
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
@@ -115,6 +130,7 @@ vpop$simulateVirtualPopulation(
 \item \href{#method-VirtualPopulation-addAdditiveIOV}{\code{VirtualPopulation$addAdditiveIOV()}}
 \item \href{#method-VirtualPopulation-addMultiplicativeIOV}{\code{VirtualPopulation$addMultiplicativeIOV()}}
 \item \href{#method-VirtualPopulation-simulateVirtualPopulation}{\code{VirtualPopulation$simulateVirtualPopulation()}}
+\item \href{#method-VirtualPopulation-simulateVirtualPopulationFromPKML}{\code{VirtualPopulation$simulateVirtualPopulationFromPKML()}}
 \item \href{#method-VirtualPopulation-clone}{\code{VirtualPopulation$clone()}}
 }
 }
@@ -299,6 +315,63 @@ A list containing results from reference and test population simulations.
 vpop$simulateVirtualPopulation(
   referenceSimulationFilePath = "ref.sim",
   testSimulationFilePath = "test.sim",
+  outputPath = "PATH|TO|OUTPUT",
+  startTime = 0,
+  endTime = 1440,
+  resolutionPtsMin = 10
+)
+}
+}
+\if{html}{\out{</div>}}
+
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-VirtualPopulation-simulateVirtualPopulationFromPKML"></a>}}
+\if{latex}{\out{\hypertarget{method-VirtualPopulation-simulateVirtualPopulationFromPKML}{}}}
+\subsection{Method \code{simulateVirtualPopulationFromPKML()}}{
+Run simulations on the virtual population using provided simulation templates.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{VirtualPopulation$simulateVirtualPopulationFromPKML(
+  referenceSimulation,
+  testSimulation,
+  numberOfReplicates = 1,
+  outputPath,
+  startTime,
+  endTime,
+  resolutionPtsMin
+)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{referenceSimulation}}{Reference simulation object.}
+
+\item{\code{testSimulation}}{Test simulation object.}
+
+\item{\code{numberOfReplicates}}{Integer. Number of replicate simulations per virtual subject. Default is 1.}
+
+\item{\code{outputPath}}{Character. Directory to store simulation results.}
+
+\item{\code{startTime}}{Numeric. Start time of the simulation window.}
+
+\item{\code{endTime}}{Numeric. End time of the simulation window.}
+
+\item{\code{resolutionPtsMin}}{Numeric. Output resolution in points per minute.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+A list containing results from reference and test population simulations.
+}
+\subsection{Examples}{
+\if{html}{\out{<div class="r example copy">}}
+\preformatted{\dontrun{
+vpop$simulateVirtualPopulationFromPKML(
+  referenceSimulation = "refSim",
+  testSimulation = "testSim",
   outputPath = "PATH|TO|OUTPUT",
   startTime = 0,
   endTime = 1440,
