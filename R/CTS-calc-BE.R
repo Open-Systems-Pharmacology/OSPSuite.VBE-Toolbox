@@ -32,8 +32,6 @@ compute_cmax <- function(data) {
 
 getAucCmaxDf <- function(df) {
   categoryNames <- c("id","drug","rep")
-  #categoryNames <- c("id","drug","rep","seq")
-  #  results <- data.frame(id = numeric(), drug = character(), rep = numeric(), seq = character(), auc = numeric(), cmax = numeric())
   results <- data.frame(id = numeric(), drug = character(), rep = numeric(), auc = numeric(), cmax = numeric())
   uniqueTimeProfiles <- unique(df[,categoryNames])
 
@@ -41,9 +39,7 @@ getAucCmaxDf <- function(df) {
     drug <- uniqueTimeProfiles$drug[nr]
     id <- uniqueTimeProfiles$id[nr]
     rep <- uniqueTimeProfiles$rep[nr]
-    #seq <- uniqueTimeProfiles$seq[nr]
 
-    #subset_data <- df[df$id == id & df$drug == drug & df$rep == rep & df$seq == seq, ]
     subset_data <- df[df$id == id & df$drug == drug & df$rep == rep, ]
 
     auc_value <- compute_auc(subset_data)
@@ -56,9 +52,6 @@ getAucCmaxDf <- function(df) {
                                            auc = auc_value,
                                            cmax = cmax_value))
   }
-
-
-
   return(results)
 }
 
@@ -102,71 +95,18 @@ checkIdAppearsOncePerReplicate <- function(pkDf){
   }
 }
 
-# summarizePerSeqDrug <- function(pkDf){
-#   pkDfSummary <- as.data.frame(table(pkDf$per, pkDf$drug, pkDf$seq))
-#   colnames(pkDfSummary) <- c("per", "drug" , "seq", "N")
-#   pkDfSummary <- pkDfSummary[pkDfSummary$N != 0, ]
-#   return(pkDfSummary)
-# }
-#
-# checkIdsSeqDisjoint <- function(pkDf){
-#   pkDfSummary <- summarizePerSeqDrug(pkDf)
-#   idsDf <- NULL
-#   for (seq in unique(pkDfSummary$seq)){
-#     ids <- unique(pkDf$id[pkDf$seq == seq])
-#     idsDf <- rbind.data.frame(idsDf,
-#                               data.frame(id = ids,
-#                                          seq = seq))
-#   }
-#   duplicatedIds <- duplicated(idsDf$id)
-#   if( any(duplicatedIds)){
-#     stop( paste("Ids",paste0(idsDf$id[duplicatedIds],collapse = ", "),"present in multiple sequences."))
-#   }
-# }
-
-
-# summarizePerDrug <- function(pkDf){
-#   pkDfSummary <- as.data.frame(table(pkDf$per, pkDf$drug))
-#   colnames(pkDfSummary) <- c("per", "drug" , "N")
-#   pkDfSummary <- pkDfSummary[pkDfSummary$N != 0, ]
-#   return(pkDfSummary)
-# }
-
-# checkIds <- function(pkDf){
-#   #want to say that the ids appearing in per 1 for drug R are the same as the ids appearing in per 2 for drug T1 and in per 3 for drug T4
-#   pkDfSummary <- summarizePerSeqDrug(pkDf)
-#   browser()
-#   for (seq in unique(pkDfSummary$seq)){
-#     df <- pkDf[pkDf$seq == seq,]
-#     #df$
-#   }
-# }
-
 get_replicate_design_data <- function(pkDf,nSubjects, aucICV, cmaxICV){
   # create subset with the same nSubjects random individuals by drug, period
   # for replicate (all periods) and cross-over (period 1 only)
 
-
-  # pkDfSummary <- summarizePerSeqDrug(pkDf)
   checkIdAppearsOncePerReplicate(pkDf)
-  # checkIdsSeqDisjoint(pkDf)
-
   rep_df <- NULL
 
-  #drugNames <- c("R","T1","T2","T3")
   drugNames <- unique(pkDf$drug)
   nDrugs <- length(drugNames)
   nPeriodsPerReplicate <- nDrugs
   periods <- seq_len(nPeriodsPerReplicate)
   names(periods) <- drugNames
-
-  # #Williams
-  # sequencesDf <- expand.grid(replicate(nPeriodsPerReplicate, periods, simplify = FALSE))
-  # validSequences <- sapply(seq_len(nrow(sequencesDf)),function(n){ all(periods %in% unlist(sequencesDf[n,]) ) })
-  # sequencesDf <- sequencesDf[validSequences,]
-  # names(sequencesDf) <- drugNames
-  # seqOorder <- order( sapply(seq_len(nrow(sequencesDf)) , function(n){ paste(unlist(sequencesDf[n,]),collapse = "") } ))
-  # sequencesDf <- sequencesDf[seqOorder , ]
 
   drugSequenceDf <- data.frame()
   drugSequence <- seq_len(nDrugs)
@@ -201,14 +141,6 @@ get_replicate_design_data <- function(pkDf,nSubjects, aucICV, cmaxICV){
                     cmaxICV = cmaxICV)
 
   return(rep_df)
-  #check that ids in only appear once per period
-  #pkdf will have per col.
-  #pkdf will have all subjs taking either R or T in each period.  ie a subject cannot appear more than once in the same period
-  #pkdf will
-  #user specifies how many periods.  virtual pop generator will add IOV to parameters, ie in each period the simulation will be run with a different set of IOV parameters.
-  #crossover has two periods where subjects switch between R and T
-  #replicate has more than one
-  #Could have multiple treatments
 }
 
 get_crossover_design_data <- function(pkDf, aucICV, cmaxICV){
@@ -231,7 +163,7 @@ this_samp <- function(pkParameterData, nSubjects, aucICV, cmaxICV) {
 
   par_df <- get_parallel_design_data(pkDf = pkParameterData ,nSubjects =  nSubjects)
   rep_df <- get_replicate_design_data(pkDf = pkParameterData ,nSubjects =  nSubjects, aucICV, cmaxICV)
-  cross_df <- rep_df[rep_df$rep %in% 1, ] #get_crossover_design_data(pkDf = rep_df[rep_df$rep %in% 1, ], aucICV, cmaxICV)
+  cross_df <- rep_df[rep_df$rep %in% 1, ]
 
   lmPar <- list(rep(NA, 2)) # for parallel
   lmCross <- list(rep(NA, 2)) # for crossover
@@ -303,9 +235,7 @@ calc_be <- function(data,
   # extract data
 
   periods <- unique(pkParameterData$per)
-  # n_pers <- length(periods) # each period is a replicate for that drug
   nSubjects <- seq(from = subj_min, to = subj_max, by = subj_step) # step through sample sizes
-  #n_samp <- length(nSubjects)
   set.seed(seed)
 
   res_list <- vector("list", length(nSubjects))
