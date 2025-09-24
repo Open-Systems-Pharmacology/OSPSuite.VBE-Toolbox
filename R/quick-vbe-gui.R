@@ -1,4 +1,12 @@
 makeSummary <- function(input,refSim,testSim,refPopDf,testPopDf,outputPathToSimulate,wsvParameterPathsList){
+
+  ICVForAUC <- input$ICV_AUC
+  ICVForCmax <- input$ICV_Cmax
+  if (input$WSVformChoice == 'Parameter-wise within-subject variability'){
+    ICVForAUC <- 0
+    ICVForCmax <- 0
+  }
+
   paste("*********",
         "\n*Summary*",
         "\n*********",
@@ -14,16 +22,16 @@ makeSummary <- function(input,refSim,testSim,refPopDf,testPopDf,outputPathToSimu
         "\n=====================",
         "\nBSV source:", input$BSVformChoice,
         "\nWSV source:", input$WSVformChoice,
-        "\nICV for AUC:", input$ICV_AUC,
-        "\nICV for Cmax:", input$ICV_Cmax,
+        "\nICV for AUC:", ICVForAUC,
+        "\nICV for Cmax:", ICVForCmax,
         "\n",
         "\nClinical trial",
         "\n=====================",
-        "\nNumber of crossover trial replicates", input$CT_numberOfReplicates,
-        "\nNumber of trials per trial size", input$CT_n_trials,
-        "\nMinimum number of subjects", input$CT_subj_min,
-        "\nMaximum number of subjects", input$CT_subj_max,
-        "\nIncrement in number of subjects", input$CT_subj_step)
+        "\nNumber of crossover trial replicates:", input$CT_numberOfReplicates,
+        "\nNumber of trials per sample size:", input$CT_n_trials,
+        "\nMinimum sample size:", input$CT_subj_min,
+        "\nMaximum sample size:", input$CT_subj_max,
+        "\nSample size increment:", input$CT_subj_step)
 }
 
 nn <- function(input){
@@ -302,7 +310,7 @@ runQuickVBE <- function(){
                                    step = 1,
                                    min = 1,
                                    width = "100%",
-                                   label = "Number of trials"
+                                   label = "Number of trials per sample size"
                                  )
                                ),
                                hr(),
@@ -313,7 +321,7 @@ runQuickVBE <- function(){
                                    step = 1,
                                    min = 1,
                                    width = "100%",
-                                   label = "Minimum number of subjects"
+                                   label = "Minimum sample size"
                                  )
                                ),
                                hr(),
@@ -324,7 +332,7 @@ runQuickVBE <- function(){
                                    step = 1,
                                    min = 1,
                                    width = "100%",
-                                   label = "Maximum number of subjects"
+                                   label = "Maximum sample size"
                                  )
                                ),
                                hr(),
@@ -335,7 +343,7 @@ runQuickVBE <- function(){
                                    step = 1,
                                    min = 1,
                                    width = "100%",
-                                   label = "Increment in number of subjects"
+                                   label = "Sample size increment"
                                  )
                                ),
                                hr(),
