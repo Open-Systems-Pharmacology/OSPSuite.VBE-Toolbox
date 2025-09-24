@@ -400,7 +400,7 @@ parameters and cofactors.</p>
 <span><span class="co">#&gt; [2,] 1.421875</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Step 4/10:</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> fminsearch</span></span>
-<span><span class="co">#&gt; Timing stopped at: 5.217 0.019 2.002</span></span>
+<span><span class="co">#&gt; Timing stopped at: 5.24 0.03 2.036</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> fminsearch ... done</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> prune</span></span>
@@ -434,7 +434,7 @@ parameters and cofactors.</p>
 <span><span class="co">#&gt; [2,] 1.421875</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Step 6/10:</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> fminsearch</span></span>
-<span><span class="co">#&gt; Timing stopped at: 5.479 0.019 2.093</span></span>
+<span><span class="co">#&gt; Timing stopped at: 5.432 0.028 2.09</span></span>
 <span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> fminsearch ... done</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> prune</span></span>
@@ -650,12 +650,12 @@ to create a virtual population:</p>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Create virtual population characteristics</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Building cluster model based on NPOD results.</span></span></code></pre></div>
 <p><img src="testosterone-dermal_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
-<pre><code><span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Building cluster model based on NPOD results. <span style="color: #B2B2B2;">[100ms]</span></span></span>
+<pre><code><span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Building cluster model based on NPOD results. <span style="color: #B2B2B2;">[101ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Create virtual population characteristics⠙ Sampling from conditional distribution: individual 1/100</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Sampling from conditional distribution: individual 100/100 <span style="color: #B2B2B2;">[233ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Sampling from conditional distribution: individual 100/100 <span style="color: #B2B2B2;">[234ms]</span></span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Create virtual population characteristics<span style="color: #00BB00;">✔</span> Create virtual population characteristics <span style="color: #B2B2B2;">[374ms]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Create virtual population characteristics<span style="color: #00BB00;">✔</span> Create virtual population characteristics <span style="color: #B2B2B2;">[376ms]</span></span></span>
 <span></span>
 <span><span class="va">vp</span><span class="op">$</span><span class="fu">addMultiplicativeIOV</span><span class="op">(</span>parameterPath <span class="op">=</span> <span class="st">"in_vivo_sink_clearance|scaling_total_clearance"</span>,CV <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
 <span><span class="va">vp</span><span class="op">$</span><span class="fu">addMultiplicativeIOV</span><span class="op">(</span>parameterPath <span class="op">=</span> <span class="st">"permeant|K_v_m"</span>,CV <span class="op">=</span> <span class="fl">0.1</span><span class="op">)</span></span>
@@ -670,7 +670,7 @@ to create a virtual population:</p>
 <span><span class="co">#&gt; ⠙ Simulating virtual population</span></span>
 <span><span class="co">#&gt; ⠹ Simulating virtual population</span></span>
 <span><span class="co">#&gt; ⠸ Simulating virtual population</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating virtual population <span style="color: #B2B2B2;">[28.3s]</span></span></span></code></pre>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Simulating virtual population <span style="color: #B2B2B2;">[28.8s]</span></span></span></code></pre>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">subfolder</span>,<span class="st">"plotting_script.R"</span><span class="op">)</span>, encoding <span class="op">=</span> <span class="st">'UTF-8'</span><span class="op">)</span></span></code></pre></div>
 <p><img src="testosterone-dermal_files/figure-html/unnamed-chunk-7-1.png" width="700"><img src="testosterone-dermal_files/figure-html/unnamed-chunk-7-2.png" width="700"></p>
@@ -726,7 +726,7 @@ small (&lt;0.05) in terms of both the AUC and Cmax.</p>
 <span><span class="co">#&gt; [1] 46</span></span>
 <span><span class="co">#&gt; [1] 50</span></span>
 <span><span class="co">#&gt; ⠹ Running clinical trial simulation</span></span>
-<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running clinical trial simulation <span style="color: #B2B2B2;">[9m 19.4s]</span></span></span>
+<span><span class="co">#&gt; <span style="color: #00BB00;">✔</span> Running clinical trial simulation <span style="color: #B2B2B2;">[9m 36.8s]</span></span></span>
 <span><span class="co">#&gt; </span></span>
 <span></span>
 <span><span class="va">bandsPlot</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/plotVBEBands.html">plotVBEBands</a></span><span class="op">(</span><span class="va">ctsResults</span><span class="op">)</span></span>
