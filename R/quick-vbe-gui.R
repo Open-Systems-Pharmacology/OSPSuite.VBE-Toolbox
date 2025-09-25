@@ -38,14 +38,16 @@ nn <- function(input){
   if(is.na(input)){
     return(NULL)
   }
+  if(is.integer(input)){
+    return(as.numeric(input))
+  }
   return(input)
 }
 
 runVBEGui <- function(input,refSim,testSim,refPopDf,testPopDf,outputPathToSimulate,wsvParameterPathsList){
   summary <- makeSummary(input,refSim,testSim,refPopDf,testPopDf,outputPathToSimulate,wsvParameterPathsList)
+  vp <- VirtualPopulation$new()
   if(input$BSVformChoice == "Upload PK-Sim population CSV file"){
-    demographyRanges <- NULL
-    vp <- VirtualPopulation$new(demographyRanges = demographyRanges)
     vp$addPopulationDataFrames(referencePopulationDataframe = refPopDf,testPopulationDataframe = testPopDf)
   } else {
     demographyRanges <- ospsuite::createPopulationCharacteristics(species = nn(input$species),
@@ -58,7 +60,10 @@ runVBEGui <- function(input,refSim,testSim,refPopDf,testPopDf,outputPathToSimula
                                                                   BMIMin = nn(input$BMIMin),BMIMax = nn(input$BMIMax),BMIUnit = nn(input$BMIUnit),
                                                                   gestationalAgeMin = nn(input$gestAgeMin),gestationalAgeMax = nn(input$gestAgeMax),gestationalAgeUnit = nn(input$gestAgeUnit),
                                                                   seed = nn(input$seed))
-    vp <- VirtualPopulation$new(demographyRanges = demographyRanges)
+    population <- createPopulation(populationCharacteristics = demographyRanges)
+    virtualPopulation <- population$population
+    virtualPopulationDataframe <- populationToDataFrame(virtualPopulation)
+    vp$addPopulationDataFrames(referencePopulationDataframe = virtualPopulationDataframe,testPopulationDataframe = virtualPopulationDataframe)
   }
 
   if(input$WSVformChoice ==  "Parameter-wise within-subject variability"){
@@ -123,7 +128,7 @@ runVBEGui <- function(input,refSim,testSim,refPopDf,testPopDf,outputPathToSimula
   probabilityPlot <- plotVBEProbability(ctsResults)
   show(probabilityPlot)
 
-  vbeResults <- list(summary = summary, pkParametersData = pkParametersData, ctsResults = ctsResults , bandsPlot = bandsPlot , probabilityPlot = probabilityPlot)
+  vbeResults <- list(summary = summary, pkParametersData = pkParametersData, ctsResults = ctsResults , bandsPlot = bandsPlot , probabilityPlot = probabilityPlot, virtualPopulation = virtualPopulation)
 
   return(vbeResults)
 }
@@ -593,6 +598,12 @@ runQuickVBE <- function(){
           }
           fname <- paste0("summary", "_" , trial , "_", dateTime$now, ".csv")
           write.csv(x = results$ctsResults$summary[[trial]],file = fname ,row.names = FALSE)
+          fileNames <- c(fileNames, fname)
+        }
+
+        if(!is.null(results$virtualPopulation)){
+          fname <- paste0("virtual_population", "_" , dateTime$now, ".csv")
+          ospsuite::exportPopulationToCSV(population = results$virtualPopulation, filePath = fname)
           fileNames <- c(fileNames, fname)
         }
 
