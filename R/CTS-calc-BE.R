@@ -116,13 +116,9 @@ get_replicate_design_data <- function(pkDf,nSubjects, aucICV, cmaxICV){
   }
   names(drugSequenceDf) <- drugNames
 
-  uniqueIds <- unique(pkDf$id)
-  idsPerSequence <- list()
-  for (seq in seq_len(nrow(drugSequenceDf))){
-    idsPerSequence[[seq]] <- sample(x = uniqueIds, size = ceiling(nSubjects/nDrugs) )
-    uniqueIds <- uniqueIds[ !(uniqueIds %in% idsPerSequence[[seq]]) ]
-  }
 
+  uniqueIds <- sample(x = unique(pkDf$id),size = nSubjects,replace = FALSE)
+  idsPerSequence <- unname(split(uniqueIds, rep(1:nrow(drugSequenceDf), length.out = nSubjects)))
 
   for (rep in unique(pkDf$rep)){
     for (seq in seq_len(nrow(drugSequenceDf))){
