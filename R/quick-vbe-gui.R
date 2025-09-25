@@ -186,7 +186,8 @@ runQuickVBE <- function(){
                conditionalPanel(
                  condition = "input.BSVformChoice == 'Upload PK-Sim population CSV file'",
                  fileInput("csvFileRef", "Population CSV for reference simulation", accept = ".csv"),
-                 fileInput("csvFileTest", "Population CSV for test simulation", accept = ".csv"),
+                 fileInput("csvFileTest", "Population CSV for test simulation *", accept = ".csv"),
+                 helpText(HTML("* Use the same population CSV for the reference and test simulations<br/>unless they contain different paths to corresponding parameters.")),
                  verbatimTextOutput("csvRefOut"),
                  verbatimTextOutput("csvTestOut")
                ),
