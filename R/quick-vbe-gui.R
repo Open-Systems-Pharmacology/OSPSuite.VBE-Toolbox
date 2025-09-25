@@ -48,8 +48,13 @@ runVBEGui <- function(input,refSim,testSim,refPopDf,testPopDf,outputPathToSimula
   summary <- makeSummary(input,refSim,testSim,refPopDf,testPopDf,outputPathToSimulate,wsvParameterPathsList)
   vp <- VirtualPopulation$new()
   if(input$BSVformChoice == "Upload PK-Sim population CSV file"){
+    virtualPopulation <- NULL
     vp$addPopulationDataFrames(referencePopulationDataframe = refPopDf,testPopulationDataframe = testPopDf)
   } else {
+
+    progressCreatePopulation <- shiny::Progress$new()
+    progressCreatePopulation$set(message = "Creating virtual population", value = 0)
+    on.exit(progressCreatePopulation$close())
     demographyRanges <- ospsuite::createPopulationCharacteristics(species = nn(input$species),
                                                                   population = nn(input$population),
                                                                   numberOfIndividuals = nn(input$numberOfIndividuals),
@@ -63,6 +68,7 @@ runVBEGui <- function(input,refSim,testSim,refPopDf,testPopDf,outputPathToSimula
     population <- createPopulation(populationCharacteristics = demographyRanges)
     virtualPopulation <- population$population
     virtualPopulationDataframe <- populationToDataFrame(virtualPopulation)
+    progressCreatePopulation$set(message = "Creating virtual population", value = 1)
     vp$addPopulationDataFrames(referencePopulationDataframe = virtualPopulationDataframe,testPopulationDataframe = virtualPopulationDataframe)
   }
 
