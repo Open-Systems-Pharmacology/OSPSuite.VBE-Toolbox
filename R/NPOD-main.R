@@ -33,7 +33,7 @@ NPODObject <- R6::R6Class(
     sigma = list(),
     #' @field useLogNormalLikelihood A logical to define if using log normal likelihood
     useLogNormalLikelihood = FALSE,
-    
+
     #' @description Initialize a new NPODObject
     #' @param simulationFilePath A string path to the simulation file
     #' @param optimizationParameterList A list of `VBEParameter` objects
@@ -227,7 +227,6 @@ NPODObject <- R6::R6Class(
 
     #' @description Dopt Optimization algorithm
     Dopt = function() {
-      # browser()
       old_theta <- self$theta_0
       counter <- 1
       F0 <- -10^(30)
@@ -238,7 +237,7 @@ NPODObject <- R6::R6Class(
       objective_function_values <- c() # Initialize a vector to store the objective function values at each iteration
       objective_function_values[counter] <- F0
       objective_function_values[counter + 1] <- F1
-      
+
       cli::cli_h2("Optimization")
       while (abs(objective_function_values[counter + 1] - objective_function_values[counter]) > self$npodRunSettings$theta_F) {
         cli::cli_alert_info("Run {counter}:")
@@ -258,7 +257,7 @@ NPODObject <- R6::R6Class(
         cli::cli_alert("theta:")
         print(inb_theta)
         cli::cli_alert("lambda: {lam}")
-        
+
         # Calculate the matrix of log likelihoods P2 for the set of support points inb_theta
         P2 <- self$getPSI(theta = inb_theta, optimizeSigma = TRUE, lambda = lam)
 
@@ -563,7 +562,7 @@ NPODRunSettings <- R6::R6Class(
     cache_folder_name = NULL,
     #' @field npod_cache The cache object
     npod_cache = NULL,
-    
+
     #' @description Initialize a new NPODRunSettings
     #' @param noise A logical to define if noise is present
     #' @param model A model object
